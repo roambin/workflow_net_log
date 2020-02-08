@@ -43,8 +43,13 @@ public class Dom4jUtils {
         Block block = new Block();
         block.id = element.attribute("id").getValue();
         block.name = element.element("name").element("text").getText();
-        block.position = getPoint(element.element("graphics").element("position"));
-        block.dimension = getPoint(element.element("graphics").element("dimension"));
+        block.logevent = element.element("toolspecific") != null
+                ? element.element("toolspecific").element("logevent").element("name").getText()
+                : block.name;
+        if(element.element("graphics") != null){
+            block.position = getPoint(element.element("graphics").element("position"));
+            block.dimension = getPoint(element.element("graphics").element("dimension"));
+        }
         block.isPlace = isPlace;
         return block;
     }
@@ -53,8 +58,11 @@ public class Dom4jUtils {
         arc.id = element.attribute("id").getValue();
         arc.source = element.attribute("source").getValue();
         arc.target = element.attribute("target").getValue();
-        element.element("toolspecific").element("spline").elementIterator()
-                .forEachRemaining(e -> arc.points.add(getPoint(e)));
+        if(element.element("toolspecific")!= null
+                && element.element("toolspecific").element("spline") != null){
+            element.element("toolspecific").element("spline").elementIterator()
+                    .forEachRemaining(e -> arc.points.add(getPoint(e)));
+        }
         return arc;
     }
     protected static Point getPoint(Element element){
@@ -65,6 +73,5 @@ public class Dom4jUtils {
     }
     public static void main(String[] args){
         ParsedPnml parsedPnml = getGraph("Model1.pnml");
-        System.out.println();
     }
 }
